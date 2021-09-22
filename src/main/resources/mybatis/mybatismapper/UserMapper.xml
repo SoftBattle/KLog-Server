@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.softbattle.klog_server.module.user.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="org.softbattle.klog_server.entity.user.User">
+    <!--@mbg.generated-->
+    <!--@Table t_user-->
+    <id column="userId" jdbcType="VARCHAR" property="userid" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="follows" jdbcType="VARCHAR" property="follows" />
+    <result column="followers" jdbcType="VARCHAR" property="followers" />
+    <result column="stars" jdbcType="VARCHAR" property="stars" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    userId, `password`, avatar, nickname, follows, followers, stars
+  </sql>
+</mapper>
