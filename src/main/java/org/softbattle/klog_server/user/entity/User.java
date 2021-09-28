@@ -1,15 +1,20 @@
 package org.softbattle.klog_server.user.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+
+/**
+ * 用户表实体类
+ * @author ygx
+ */
 @ApiModel(value="t_user")
 @Data
 @NoArgsConstructor
@@ -20,6 +25,9 @@ public class User implements Serializable {
      */
     @TableId(value = "userId", type = IdType.INPUT)
     @ApiModelProperty(value="用户")
+    @Version
+    @NotNull(value = "id不能为空")
+    @Size(max = 32, message = "id过长")
     private String userid;
 
     /**
@@ -27,6 +35,8 @@ public class User implements Serializable {
      */
     @TableField(value = "`password`")
     @ApiModelProperty(value="密码")
+    @NotEmpty(message = "密码不能为空")
+    @Size(max = 32, message = "密码过长")
     private String password;
 
     /**
@@ -41,6 +51,7 @@ public class User implements Serializable {
      */
     @TableField(value = "nickname")
     @ApiModelProperty(value="昵称（自己先生成，后续可以改）")
+    @Size(max = 128, message = "昵称过长")
     private String nickname;
 
     /**
