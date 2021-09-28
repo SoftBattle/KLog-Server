@@ -1,4 +1,4 @@
-package org.softbattle.klog_server.common.result;
+package org.softbattle.klog_server.user.result;
 
 /**
  * 常见请求状态枚举类

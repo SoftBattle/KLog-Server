@@ -1,4 +1,4 @@
-package org.softbattle.klog_server.common.result;
+package org.softbattle.klog_server.user.result;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
