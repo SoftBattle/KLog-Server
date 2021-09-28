@@ -5,9 +5,16 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 用户表实体类
+ * @author ygx
+ */
+@ApiModel(value = "用户表实体类")
 @Data
 @NoArgsConstructor
 @TableName(value = "t_user")
