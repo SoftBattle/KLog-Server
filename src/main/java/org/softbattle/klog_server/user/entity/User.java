@@ -26,8 +26,8 @@ public class User implements Serializable {
     @TableId(value = "userId", type = IdType.INPUT)
     @ApiModelProperty(value="用户")
     @Version
-    @NotNull(value = "id不能为空")
-    @Size(max = 32, message = "id过长")
+    @NotNull
+    @Size(max = 32)
     private String userid;
 
     /**
@@ -35,8 +35,8 @@ public class User implements Serializable {
      */
     @TableField(value = "`password`")
     @ApiModelProperty(value="密码")
-    @NotEmpty(message = "密码不能为空")
-    @Size(max = 32, message = "密码过长")
+    @NotEmpty
+    @Size(max = 32)
     private String password;
 
     /**
@@ -51,7 +51,7 @@ public class User implements Serializable {
      */
     @TableField(value = "nickname")
     @ApiModelProperty(value="昵称（自己先生成，后续可以改）")
-    @Size(max = 128, message = "昵称过长")
+    @Size(max = 128)
     private String nickname;
 
     /**
