@@ -1,6 +1,7 @@
 package org.softbattle.klog_server.article.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.softbattle.klog_server.article.entity.Article;
@@ -63,4 +64,30 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         int insert = articleMapper.insert(article);
         return insert;
     }
+
+    @Override
+    public int updateArticle(String title, String subTitle, String[] banners, String[] tags, String content) {
+        UpdateWrapper<Article> wrapper=new UpdateWrapper<Article>();
+        //这里要获得用户作者
+        wrapper.eq("arthor","  uid ");//解析token得到作者
+        //然后在URL里面获得pid
+        wrapper.eq("articleId","pid");//解析URL获得文章iD
+        Article article=new Article();
+        article.setTitle(title);
+        article.setSubTitle(subTitle);
+        article.setBanner(banners.toString());
+        article.setTags(tags.toString());
+        article.setContent(content);
+        return articleMapper.update(article,wrapper);
+    }
+
+    @Override
+    public int deleteArticle(String pid) {
+        QueryWrapper wrapper=new QueryWrapper();
+        wrapper.eq("articleId",pid);
+        int delete = articleMapper.delete(wrapper);
+        return delete;
+    }
+
+
 }
