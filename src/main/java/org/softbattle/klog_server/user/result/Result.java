@@ -19,8 +19,7 @@ public class Result extends HashMap<String, Object> implements Serializable {
     public Result(){}
 
     /**
-     * 预定义错误
-     * 不带data
+     * 无data预定义结果
      * @param hse
      */
     public Result(HttpStatusEnum hse){
@@ -28,8 +27,7 @@ public class Result extends HashMap<String, Object> implements Serializable {
     }
 
     /**
-     * 预定义错误
-     * 带data
+     * 带data预定义结果
      * @param hse
      * @param data
      */
@@ -39,8 +37,7 @@ public class Result extends HashMap<String, Object> implements Serializable {
     }
 
     /**
-     * 自定义错误
-     * 不带data
+     * 无data自定义结果
      * @param stat
      * @param msg
      */
@@ -50,8 +47,7 @@ public class Result extends HashMap<String, Object> implements Serializable {
     }
 
     /**
-     * 自定义错误
-     * 带data
+     * 带data自定义结果
      * @param stat
      * @param msg
      * @param data
@@ -65,28 +61,27 @@ public class Result extends HashMap<String, Object> implements Serializable {
     }
 
     /**
-     * 分页查询结果
-     * @param page
+     * 成功
+     * 不带data
+     * @return
      */
-    public Result(IPage<?> page){
-        super.put(STATUS, HttpStatusEnum.SUCCESS.getStat());
-        super.put(MESSAGE, HttpStatusEnum.SUCCESS.getMsg());
-        super.put(DATA, page.getRecords());
-        final Integer total = (int) page.getTotal();
-        //这里有待商榷
-        super.put("total", total);
-    }
-
     public static Result success(){
         return new Result(HttpStatusEnum.SUCCESS);
     }
 
+    /**
+     * 成功
+     * 带data
+     * @param data
+     * @return
+     */
     public static Result success(Object data){
         Result r = new Result();
         r.put(STATUS, "ok");
         r.put(DATA, data);
         return r;
     }
+
 
     public static Result error(){
         return new Result(HttpStatusEnum.ERROR);
