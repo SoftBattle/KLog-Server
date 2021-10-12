@@ -7,6 +7,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author ygx
  */
 public interface UserService extends IService<User>{
-
-
+    /**
+     * 用户注册
+     * @param uid
+     * @param passwd
+     * @return
+     */
+    public boolean UserRegist(String uid, String passwd);
 }
