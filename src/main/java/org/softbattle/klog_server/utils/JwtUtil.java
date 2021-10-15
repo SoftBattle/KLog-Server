@@ -2,6 +2,7 @@ package org.softbattle.klog_server.utils;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.exceptions.ValidateException;
+import cn.hutool.http.server.HttpServerRequest;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTPayload;
 import cn.hutool.jwt.JWTUtil;
@@ -10,6 +11,8 @@ import cn.hutool.jwt.signers.JWTSignerUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
 
@@ -28,7 +31,7 @@ public class JwtUtil {
      * 根据用户id生成jwt
      */
     public static String jwtCreate(String uid){
-        final String jwtToken = JWT.create()
+        String jwtToken = JWT.create()
                 .setPayload(USERID, uid)
                 //不签名
                 .setSigner(JWTSignerUtil.none())
@@ -60,11 +63,17 @@ public class JwtUtil {
 
     /**
      * token过期处理
+     * 从请求的requset里拿出token，过期后放入同一个请求的response中
      */
-    public static void tokenExpire(String jwtToken){
-        JWT jwt = JWTUtil.parseToken(jwtToken);
-        jwt.setExpiresAt(DateUtil.date());
-        jwtToken = jwt.sign();
+    public static void tokenExpire(HttpServletRequest request, HttpServletResponse response){
+        String token = request.getHeader("token");
+        if (token != null){
+            JWT jwt = JWTUtil.parseToken(token);
+            jwt.setExpiresAt(DateUtil.date());
+            String newToken = jwt.sign();
+            JwtUtil.setCookie(response, newToken);
+        }
+
     }
 
     /**
