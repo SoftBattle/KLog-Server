@@ -1,5 +1,6 @@
 package org.softbattle.klog_server.utils;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.http.server.HttpServerRequest;
@@ -31,7 +32,7 @@ public class JwtUtil {
      * 根据用户id生成jwt
      */
     public static String jwtCreate(String uid){
-        String jwtToken = JWT.create()
+        return JWT.create()
                 .setPayload(USERID, uid)
                 //不签名
                 .setSigner(JWTSignerUtil.none())
@@ -40,7 +41,6 @@ public class JwtUtil {
                 //设置过期时间 1小时以后
                 .setExpiresAt(DateUtil.offsetHour(DateUtil.date(), 1))
                 .sign();
-        return jwtToken;
     }
 
     /**
@@ -63,17 +63,20 @@ public class JwtUtil {
 
     /**
      * token过期处理
-     * 从请求的requset里拿出token，过期后放入同一个请求的response中
      */
-    public static void tokenExpire(HttpServletRequest request, HttpServletResponse response){
-        String token = request.getHeader("token");
-        if (token != null){
-            JWT jwt = JWTUtil.parseToken(token);
-            jwt.setExpiresAt(DateUtil.date());
-            String newToken = jwt.sign();
-            JwtUtil.setCookie(response, newToken);
+    public static String tokenExpire(String jwtToken){
+        if (jwtToken != null){
+            String uid = JwtUtil.getUid(jwtToken);
+            JWT jwt = JWTUtil.parseToken(jwtToken);
+            return JWT.create()
+                    .setPayload(USERID, uid)
+                    //不签名
+                    .setSigner(JWTSignerUtil.none())
+                    //过期
+                    .setExpiresAt(DateUtil.date())
+                    .sign();
         }
-
+        return null;
     }
 
     /**
@@ -81,7 +84,7 @@ public class JwtUtil {
      */
     public static boolean validate(String jwtToken){
         try {
-            JWTValidator.of(jwtToken).validateDate();
+            JWTValidator.of(jwtToken).validateDate(DateUtil.date());
             return true;
         }catch (ValidateException e){
             return false;
