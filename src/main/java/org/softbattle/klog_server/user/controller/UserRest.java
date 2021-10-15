@@ -1,6 +1,7 @@
 package org.softbattle.klog_server.user.controller;
 
 import io.swagger.annotations.Api;
+import org.softbattle.klog_server.config.PassToken;
 import org.softbattle.klog_server.user.dto.AuthRegist;
 import org.softbattle.klog_server.user.result.Result;
 import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
@@ -33,9 +34,10 @@ public class UserRest {
      * @param passwd
      * @return
      */
+    @PassToken
     @PostMapping(value = "/api/auth/regist")
     public Result regist(@RequestParam(value = "uid") String uid, @RequestParam(value = "passwd") String passwd){
-        if(!userService.UserRegist(uid, passwd)){
+        if(!userService.userRegist(uid, passwd)){
             return Result.error();
         }
         else {
@@ -45,7 +47,7 @@ public class UserRest {
                 String token = JwtUtil.jwtCreate(uid);
                 JwtUtil.setCookie(httpServletResponse, token);
                 AuthRegist authRegist = new AuthRegist(uid, token);
-                return Result.success(authRegist);
+                return Result.success("注册成功", authRegist);
             }catch (Exception e){
                 return Result.error();
             }
