@@ -1,19 +1,24 @@
 package org.softbattle.klog_server.user.controller;
 
+import cn.hutool.log.Log;
 import io.swagger.annotations.Api;
+import org.softbattle.klog_server.config.NeedToken;
 import org.softbattle.klog_server.config.PassToken;
 import org.softbattle.klog_server.user.dto.AuthRegist;
+import org.softbattle.klog_server.user.dto.LoginInfo;
 import org.softbattle.klog_server.user.result.Result;
 import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
 import org.softbattle.klog_server.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -30,13 +35,13 @@ public class UserRest {
 
     /**
      * 用户注册
-     * @param uid
-     * @param passwd
      * @return
      */
     @PassToken
     @PostMapping(value = "/api/auth/regist")
-    public Result regist(@RequestParam(value = "uid") String uid, @RequestParam(value = "passwd") String passwd){
+    public Result regist(@RequestBody LoginInfo loginInfo){
+        String uid = loginInfo.getUid();
+        String passwd = loginInfo.getPasswd();
         if(!userService.userRegist(uid, passwd)){
             return Result.error();
         }
@@ -56,7 +61,9 @@ public class UserRest {
 
     @PassToken
     @PostMapping(value = "/api/auth/login")
-    public Result login(@RequestParam(value = "uid") String uid, @RequestParam(value = "passwd") String passwd){
+    public Result login(@RequestBody LoginInfo loginInfo){
+        String uid = loginInfo.getUid();
+        String passwd = loginInfo.getPasswd();
         switch (userService.userLogin(uid, passwd)){
             case 1: return Result.error("User_Not_Exist", "用户不存在");
 
@@ -76,5 +83,14 @@ public class UserRest {
             }
             default: return Result.error();
         }
+    }
+
+    @NeedToken
+    @PostMapping(value = "/api/auth/logout")
+    public void logout(){
+            ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
+            HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
+            JwtUtil.tokenExpire(httpServletRequest, httpServletResponse);
     }
 }
