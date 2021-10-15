@@ -1,6 +1,7 @@
 package org.softbattle.klog_server.user.result;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.api.R;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -18,26 +19,9 @@ public class Result extends HashMap<String, Object> implements Serializable {
 
     public Result(){}
 
-    /**
-     * 无data预定义结果
-     * @param hse
-     */
-    public Result(HttpStatusEnum hse){
-        super.put(hse.getStat(), hse.getMsg());
-    }
 
     /**
-     * 带data预定义结果
-     * @param hse
-     * @param data
-     */
-    public Result(HttpStatusEnum hse, Object data){
-        super.put(hse.getStat(), hse.getMsg());
-        super.put(DATA, data);
-    }
-
-    /**
-     * 无data自定义结果
+     * 无data结果
      * @param stat
      * @param msg
      */
@@ -47,7 +31,7 @@ public class Result extends HashMap<String, Object> implements Serializable {
     }
 
     /**
-     * 带data自定义结果
+     * 带data结果
      * @param stat
      * @param msg
      * @param data
@@ -65,7 +49,10 @@ public class Result extends HashMap<String, Object> implements Serializable {
      * @return
      */
     public static Result success(){
-        return new Result(HttpStatusEnum.SUCCESS);
+        Result r = new Result();
+        r.put(STATUS, "ok");
+        r.put(MESSAGE, "成功");
+        return r;
     }
 
     /**
@@ -86,7 +73,10 @@ public class Result extends HashMap<String, Object> implements Serializable {
      * @return
      */
     public static Result error(){
-        return new Result(HttpStatusEnum.ERROR);
+        Result r = new Result();
+        r.put(STATUS, "Internal_Server_Error");
+        r.put(MESSAGE, "内部错误");
+        return r;
     }
 
     /**

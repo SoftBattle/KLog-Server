@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.softbattle.klog_server.user.controller.UserRest;
+import org.softbattle.klog_server.user.result.Result;
 import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,4 +56,5 @@ public class UserTest {
         resultActions.andDo(MockMvcResultHandlers.print());
 
     }
+
 }
