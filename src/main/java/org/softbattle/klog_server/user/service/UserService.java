@@ -13,5 +13,5 @@ public interface UserService extends IService<User>{
      * @param passwd
      * @return
      */
-    public boolean UserRegist(String uid, String passwd);
+    public boolean userRegist(String uid, String passwd);
 }

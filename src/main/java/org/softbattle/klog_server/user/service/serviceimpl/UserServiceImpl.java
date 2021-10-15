@@ -17,8 +17,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private UserMapper userMapper;
 
-    @Resource
-    private User user;
+
     /**
      * 默认头像地址
      */
@@ -36,9 +35,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public boolean UserRegist(String uid, String passwd) {
+    public boolean userRegist(String uid, String passwd) {
         if(userMapper.selectById(uid) != null) {return false;}
         else {
+            User user = new User();
             user.setUserid(uid);
             user.setPassword(passwd);
             user.setAvatar(DEFAULTAVATAR);
