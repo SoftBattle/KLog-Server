@@ -1,21 +1,31 @@
 package org.softbattle.klog_server.user.Handler;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.jetbrains.annotations.NotNull;
 import org.softbattle.klog_server.config.NeedToken;
 import org.softbattle.klog_server.config.PassToken;
+import org.softbattle.klog_server.user.entity.User;
+import org.softbattle.klog_server.user.mapper.UserMapper;
+import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
 import org.softbattle.klog_server.utils.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
 /**
  * 用户权限拦截器逻辑
+ *
  * @author ygx
  */
 public class AuthenticationInterceptor implements HandlerInterceptor {
+
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, @NotNull HttpServletResponse httpServletResponse, @NotNull Object object) throws Exception {
         String token = httpServletRequest.getHeader("token");
@@ -42,7 +52,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                     throw new RuntimeException("无token，请重新登录");
                 }
                 //token过期处理
-                if(!JwtUtil.validate(token)){
+                if (!JwtUtil.validate(token)) {
                     throw new RuntimeException("token已过期，请重新登录");
                 }
                 return true;
