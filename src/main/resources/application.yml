@@ -1,5 +1,7 @@
 server:
   port: 8898
+  servlet:
+    context-path: /klog
 
 spring:
   #数据库连接
