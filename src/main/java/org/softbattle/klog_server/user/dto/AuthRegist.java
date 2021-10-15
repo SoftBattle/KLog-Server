@@ -7,7 +7,7 @@ import static org.softbattle.klog_server.user.service.serviceimpl.UserServiceImp
 import static org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl.DEFAULTNICKNAME;
 
 /**
- * 用户注册和登录返回结果类
+ * 注册和登录部分出参
  * @author ygx
  */
 @Data
