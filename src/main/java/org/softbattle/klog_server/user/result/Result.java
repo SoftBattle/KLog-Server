@@ -68,6 +68,13 @@ public class Result extends HashMap<String, Object> implements Serializable {
         return r;
     }
 
+    public static Result success(String stat, String msg){
+        Result r = new Result();
+        r.put(STATUS, stat);
+        r.put(MESSAGE, msg);
+        return r;
+    }
+
     /**
      * 预定义失败
      * @return
