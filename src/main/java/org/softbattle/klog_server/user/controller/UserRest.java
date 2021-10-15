@@ -35,6 +35,7 @@ public class UserRest {
 
     /**
      * 用户注册
+     * @param loginInfo
      * @return
      */
     @PassToken
@@ -59,6 +60,11 @@ public class UserRest {
         }
     }
 
+    /**
+     * 用户登录
+     * @param loginInfo
+     * @return
+     */
     @PassToken
     @PostMapping(value = "/api/auth/login")
     public Result login(@RequestBody LoginInfo loginInfo){
@@ -85,12 +91,24 @@ public class UserRest {
         }
     }
 
+    /**
+     * 登出
+     */
     @NeedToken
     @PostMapping(value = "/api/auth/logout")
-    public void logout(){
+    public Result logout(){
+        try {
             ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
             HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
-            JwtUtil.tokenExpire(httpServletRequest, httpServletResponse);
+            String oldToken = httpServletRequest.getHeader("token");
+            if (oldToken != null) {
+                String newToken = JwtUtil.tokenExpire(oldToken);
+                JwtUtil.setCookie(httpServletResponse, newToken);
+            }
+            return Result.success("ok", "登出成功");
+        }catch (Exception e){
+            return Result.error();
+        }
     }
 }
