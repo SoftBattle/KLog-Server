@@ -13,5 +13,14 @@ public interface UserService extends IService<User>{
      * @param passwd
      * @return
      */
-    public boolean userRegist(String uid, String passwd);
+    boolean userRegist(String uid, String passwd);
+
+    /**
+     * 用户登录
+     * @param uid
+     * @param passwd
+     * @return
+     */
+    int userLogin(String uid, String passwd);
+
 }

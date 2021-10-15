@@ -53,4 +53,28 @@ public class UserRest {
             }
         }
     }
+
+    @PassToken
+    @PostMapping(value = "/api/auth/login")
+    public Result login(@RequestParam(value = "uid") String uid, @RequestParam(value = "passwd") String passwd){
+        switch (userService.userLogin(uid, passwd)){
+            case 1: return Result.error("User_Not_Exist", "用户不存在");
+
+            case 2: return Result.error("User_Passwd_Incorrect", "账户或密码错误");
+
+            case 0:{
+                try{
+                    ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                    HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
+                    String token = JwtUtil.jwtCreate(uid);
+                    JwtUtil.setCookie(httpServletResponse, token);
+                    AuthRegist authRegist = new AuthRegist(uid, token);
+                    return Result.success("登录成功", authRegist);
+                }catch (Exception e){
+                    return Result.error();
+                }
+            }
+            default: return Result.error();
+        }
+    }
 }

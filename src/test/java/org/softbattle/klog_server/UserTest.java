@@ -57,4 +57,20 @@ public class UserTest {
 
     }
 
+    /**
+     * 用户登录测试
+     * @throws Exception
+     */
+    @Test
+    public void userLoginTest() throws Exception{
+        String uid = "userTest";
+        String passwd = "123456";
+        ResultActions resultActions = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+                .param("uid", uid)
+                .param("passwd", passwd));
+        resultActions.andReturn()
+                .getResponse()
+                .setCharacterEncoding("UTF-8");
+        resultActions.andDo(MockMvcResultHandlers.print());
+    }
 }

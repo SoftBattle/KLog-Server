@@ -47,4 +47,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return true;
         }
     }
+
+    /**
+     * 用户登录
+     * 0：正常
+     * 1：用户不存在
+     * 2：用户存在但密码错误
+     * @param uid
+     * @param passwd
+     * @return
+     */
+    @Override
+    public int userLogin(String uid, String passwd) {
+        User user = userMapper.selectById(uid);
+        if(user == null){
+            return 1;
+        }
+        if(!passwd.equals(user.getPassword())){
+            return 2;
+        }
+        return 0;
+    }
 }
