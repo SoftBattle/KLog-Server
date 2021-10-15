@@ -61,8 +61,7 @@ public class Result extends HashMap<String, Object> implements Serializable {
     }
 
     /**
-     * 成功
-     * 不带data
+     * 预定义成功
      * @return
      */
     public static Result success(){
@@ -70,25 +69,37 @@ public class Result extends HashMap<String, Object> implements Serializable {
     }
 
     /**
-     * 成功
-     * 带data
+     * 自定义成功
      * @param data
      * @return
      */
-    public static Result success(Object data){
+    public static Result success(String msg, Object data){
         Result r = new Result();
         r.put(STATUS, "ok");
+        r.put(MESSAGE, msg);
         r.put(DATA, data);
         return r;
     }
 
-
+    /**
+     * 预定义失败
+     * @return
+     */
     public static Result error(){
         return new Result(HttpStatusEnum.ERROR);
     }
 
-    public static Result error(Object data){
-        return new Result(HttpStatusEnum.ERROR);
+    /**
+     * 自定义失败
+     * @param stat
+     * @param msg
+     * @return
+     */
+    public static Result error(String stat, String msg){
+        Result r = new Result();
+        r.put(STATUS, stat);
+        r.put(MESSAGE, msg);
+        return r;
     }
 
 }
