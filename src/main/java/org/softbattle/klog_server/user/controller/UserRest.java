@@ -1,18 +1,20 @@
 package org.softbattle.klog_server.user.controller;
 
-import cn.hutool.log.Log;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import org.softbattle.klog_server.config.NeedToken;
 import org.softbattle.klog_server.config.PassToken;
-import org.softbattle.klog_server.user.dto.AuthRegist;
-import org.softbattle.klog_server.user.dto.LoginInfo;
+import org.softbattle.klog_server.user.dto.input.UserSearchParam;
+import org.softbattle.klog_server.user.dto.output.AuthRegist;
+import org.softbattle.klog_server.user.dto.input.LoginInfo;
+import org.softbattle.klog_server.user.dto.output.UserSearchInfo;
+import org.softbattle.klog_server.user.mapper.UserMapper;
 import org.softbattle.klog_server.user.result.Result;
 import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
 import org.softbattle.klog_server.utils.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -20,6 +22,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 
 /**
  * 用户操作控制层
@@ -31,7 +34,6 @@ public class UserRest {
 
     @Resource
     private UserServiceImpl userService;
-
 
     /**
      * 用户注册
@@ -93,6 +95,7 @@ public class UserRest {
 
     /**
      * 登出
+     * @return
      */
     @NeedToken
     @PostMapping(value = "/api/auth/logout")
@@ -110,5 +113,23 @@ public class UserRest {
         }catch (Exception e){
             return Result.error();
         }
+    }
+
+    /**
+     * 分页查找用户
+     * @param userSearchParam
+     * @return
+     */
+    @NeedToken
+    @PostMapping(value = "/api/user/search")
+    public Result search(@RequestBody UserSearchParam userSearchParam){
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
+        String uid = JwtUtil.getUid(httpServletRequest.getHeader("token"));
+        IPage<UserSearchInfo> userSearchInfoIPage = userService.search(userSearchParam.getKeyword(), userSearchParam.getPageSize(), userSearchParam.getPageIndex(), uid);
+        HashMap<String, Object> dataMap = new HashMap<>();
+        dataMap.put("users", userSearchInfoIPage.getRecords());
+        dataMap.put("total", userSearchInfoIPage.getTotal());
+        return Result.success(null, dataMap);
     }
 }

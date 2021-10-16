@@ -16,4 +16,23 @@
     <!--@mbg.generated-->
     userId, `password`, avatar, nickname, follows, followers, stars
   </sql>
+
+  <resultMap id="UserSearchInfoMap" type="org.softbattle.klog_server.user.dto.output.UserSearchInfo">
+    <!--@mbg.generated-->
+    <!--@Table t_user-->
+    <id column="userId" jdbcType="VARCHAR" property="uid" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+  </resultMap>
+
+  <select id="userPage" resultMap="UserSearchInfoMap">
+    select userId, nickname, avatar from t_user
+    <where>
+      <if test="keyword != null and keyword != ''">
+        userId like concat('%',  #{keyword}, '%')
+        or nickname like concat('%', #{keyword}, '%')
+      </if>
+      and userId != #{uid}
+    </where>
+  </select>
 </mapper>
