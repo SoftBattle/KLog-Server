@@ -125,11 +125,16 @@ public class UserRest {
     public Result search(@RequestBody UserSearchParam userSearchParam){
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
-        String uid = JwtUtil.getUid(httpServletRequest.getHeader("token"));
+        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
+        String token = httpServletRequest.getHeader("token");
+        assert httpServletResponse != null;
+        JwtUtil.setCookie(httpServletResponse, token);
+        String uid = JwtUtil.getUid(token);
         IPage<UserSearchInfo> userSearchInfoIPage = userService.search(userSearchParam.getKeyword(), userSearchParam.getPageSize(), userSearchParam.getPageIndex(), uid);
         HashMap<String, Object> dataMap = new HashMap<>();
         dataMap.put("users", userSearchInfoIPage.getRecords());
-        dataMap.put("total", userSearchInfoIPage.getTotal());
+        //排除自己
+        dataMap.put("total", userSearchInfoIPage.getTotal() - 1);
         return Result.success(null, dataMap);
     }
 }

@@ -99,18 +99,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //拿到搜索结果后逐个判断是否已关注
         IPage<UserSearchInfo> userSearchInfoIPage = userMapper.userPage(page, keyword, uid);
         List<UserSearchInfo> records = userSearchInfoIPage.getRecords();
-        //用HashSet判断
+        if (records == null){
+            return userSearchInfoIPage;
+        }
+        //把自己排除
+        records.removeIf(userSearchInfo -> uid.equals(userSearchInfo.getUid()));
         String follows = userMapper.selectById(uid).getFollows();
-        HashSet<String> followSet = new HashSet<>(JSON.parseArray(follows, String.class));
-        //uid放不进的就是已关注
-        for (UserSearchInfo record : records){
-            if (!followSet.add(record.getUid())){
-                record.setFollow(true);
+        if (follows != null) {
+            //用HashSet判断
+            HashSet<String> followSet = new HashSet<>(JSON.parseArray(follows, String.class));
+            //uid放不进的就是已关注
+            for (UserSearchInfo record : records) {
+                if (!followSet.add(record.getUid())) {
+                    record.setFollow(true);
+                }
             }
         }
         //测试
-        IPage<UserSearchInfo> userSearchInfoIPageTest = userMapper.userPage(page, keyword, uid);
-        System.out.println(userSearchInfoIPageTest.equals(userSearchInfoIPage));
+//        IPage<UserSearchInfo> userSearchInfoIPageTest = userMapper.userPage(page, keyword, uid);
+//        System.out.println("************************************");
+//        System.out.println(userSearchInfoIPageTest.equals(userSearchInfoIPage));
 
         return userSearchInfoIPage;
     }

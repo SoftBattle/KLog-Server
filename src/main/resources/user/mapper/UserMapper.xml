@@ -32,7 +32,6 @@
         userId like concat('%',  #{keyword}, '%')
         or nickname like concat('%', #{keyword}, '%')
       </if>
-      and userId != #{uid}
     </where>
   </select>
 </mapper>
