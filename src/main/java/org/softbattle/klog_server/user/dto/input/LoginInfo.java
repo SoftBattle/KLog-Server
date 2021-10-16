@@ -1,4 +1,4 @@
-package org.softbattle.klog_server.user.dto;
+package org.softbattle.klog_server.user.dto.input;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

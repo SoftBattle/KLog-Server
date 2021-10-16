@@ -26,7 +26,7 @@ public class JwtUtil {
     /**
      * 用户id字段名
      */
-    private static final String USERID = "uid";
+    public static final String USERID = "uid";
 
     /**
      * 根据用户id生成jwt

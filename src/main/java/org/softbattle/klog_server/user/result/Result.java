@@ -1,5 +1,6 @@
 package org.softbattle.klog_server.user.result;
 
+import cn.hutool.db.handler.RsHandler;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.api.R;
 
@@ -38,11 +39,14 @@ public class Result extends HashMap<String, Object> implements Serializable {
      */
     public Result(String stat, String msg, Object data){
         super.put(STATUS, stat);
-        super.put(MESSAGE, msg);
+        if (msg != null){
+            super.put(MESSAGE, msg);
+        }
         if (data != null){
             super.put(DATA, data);
         }
     }
+
 
     /**
      * 预定义成功
@@ -63,7 +67,9 @@ public class Result extends HashMap<String, Object> implements Serializable {
     public static Result success(String msg, Object data){
         Result r = new Result();
         r.put(STATUS, "ok");
-        r.put(MESSAGE, msg);
+        if (msg != null){
+            r.put(MESSAGE, msg);
+        }
         r.put(DATA, data);
         return r;
     }
