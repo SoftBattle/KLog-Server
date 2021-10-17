@@ -1,4 +1,4 @@
-package org.softbattle.klog_server.user.dto;
+package org.softbattle.klog_server.user.dto.output;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import static org.softbattle.klog_server.user.service.serviceimpl.UserServiceImp
 import static org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl.DEFAULTNICKNAME;
 
 /**
- * 用户注册返回结果类
+ * 注册和登录部分出参
  * @author ygx
  */
 @Data

@@ -1,5 +1,7 @@
 server:
   port: 8898
+  servlet:
+    context-path: /klog
 
 spring:
   #数据库连接
@@ -10,8 +12,8 @@ spring:
 #    username: root
 #    password: 200001
     #ygx
-#    username: root
-#    password: 123456
+    username: root
+    password: 123456
     druid:
       validation-query: SELECT 1 FROM DUAL
       initial-size: 10
@@ -28,7 +30,7 @@ spring:
 mybatis-plus:
   config-locations: classpath:user/config/mybatis-config.xml
   mapper-locations: classpath:user/mapper/**Mapper.xml
-  type-aliases-package: org.softbattle.klog_server.*.entity
+  type-aliases-package: org.softbattle.klog_server.**.entity
   global-config:
     db-config:
       id-type: auto

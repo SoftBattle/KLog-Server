@@ -1,7 +1,9 @@
 package org.softbattle.klog_server.utils;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.exceptions.ValidateException;
+import cn.hutool.http.server.HttpServerRequest;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTPayload;
 import cn.hutool.jwt.JWTUtil;
@@ -10,6 +12,8 @@ import cn.hutool.jwt.signers.JWTSignerUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.ValidationException;
 
@@ -22,13 +26,13 @@ public class JwtUtil {
     /**
      * 用户id字段名
      */
-    private static final String USERID = "uid";
+    public static final String USERID = "uid";
 
     /**
      * 根据用户id生成jwt
      */
     public static String jwtCreate(String uid){
-        final String jwtToken = JWT.create()
+        return JWT.create()
                 .setPayload(USERID, uid)
                 //不签名
                 .setSigner(JWTSignerUtil.none())
@@ -37,7 +41,6 @@ public class JwtUtil {
                 //设置过期时间 1小时以后
                 .setExpiresAt(DateUtil.offsetHour(DateUtil.date(), 1))
                 .sign();
-        return jwtToken;
     }
 
     /**
@@ -61,10 +64,19 @@ public class JwtUtil {
     /**
      * token过期处理
      */
-    public static void tokenExpire(String jwtToken){
-        JWT jwt = JWTUtil.parseToken(jwtToken);
-        jwt.setExpiresAt(DateUtil.date());
-        jwtToken = jwt.sign();
+    public static String tokenExpire(String jwtToken){
+        if (jwtToken != null){
+            String uid = JwtUtil.getUid(jwtToken);
+            JWT jwt = JWTUtil.parseToken(jwtToken);
+            return JWT.create()
+                    .setPayload(USERID, uid)
+                    //不签名
+                    .setSigner(JWTSignerUtil.none())
+                    //过期
+                    .setExpiresAt(DateUtil.date())
+                    .sign();
+        }
+        return null;
     }
 
     /**
@@ -72,7 +84,7 @@ public class JwtUtil {
      */
     public static boolean validate(String jwtToken){
         try {
-            JWTValidator.of(jwtToken).validateDate();
+            JWTValidator.of(jwtToken).validateDate(DateUtil.date());
             return true;
         }catch (ValidateException e){
             return false;
