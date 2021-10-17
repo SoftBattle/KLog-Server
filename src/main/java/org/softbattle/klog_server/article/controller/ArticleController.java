@@ -5,12 +5,10 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.softbattle.klog_server.article.entity.Article;
 import org.softbattle.klog_server.article.service.IArticleService;
+import org.softbattle.klog_server.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,40 +42,49 @@ public class ArticleController {
     private IArticleService articleService;
 
     /**
-     * 3.1创建文章
-     * @param title  文章标题
+     * 3.2创建文章
+     *
+     * @param title    文章标题
      * @param subTitle 副标题
-     * @param banners banner图
-     * @param tags    标签
+     * @param banners  banner图    为啥你给的是string数组，真的疑惑，不是文件流吗，难道传个图片名字就好了？
+     * @param tags     标签
      * @param content  文章正文内容
      * @return
      */
     @RequestMapping(value = "/new", method = RequestMethod.POST)
-    public String newArticle(String title, String subTitle, String[] banners, String[] tags, String content) {
+    public String newArticle(String title, String subTitle, @RequestParam(required = false) MultipartFile banners, String[] tags, String content) {
         Map<String, Object> map = new HashMap<>();
-        Article article = new Article();
-        article.setArthor("?");//解析token，根据token取
-        article.setBanner(banners.toString());
-        article.setTags(tags.toString());
-        article.setContent(content);
-        article.setTitle(title);
-        article.setSubTitle(subTitle);
-        article.setViews("0");
-        LocalDate posttime = LocalDate.now();//取现在
-        article.setCtim(posttime);
-
         try {
+            Article article = new Article();
+
+            article.setArthor("?");//解析token，根据token取到userid
+
+            //上传图片
+            if (banners != null) {
+                FileUtil.upload(banners);
+                article.setBanner(banners.getOriginalFilename());
+            }
+            article.setTags(tags.toString());
+            article.setContent(content);
+            article.setTitle(title);
+            article.setSubTitle(subTitle);
+            article.setViews("0");//设置初始的观看值为0
+            LocalDate posttime = LocalDate.now();//取现在
+            article.setCtim(posttime);
+
+
             articleService.newArticle(article);
-            map.put("stat","ok");
+            map.put("stat", "ok");
         } catch (Exception e) {
             map.put("stat", "Internal_Server_Error");
-            map.put("msg","内部错误");
+            map.put("msg", "内部错误");
         }
         return JSON.toJSONString(map);
     }
 
     /**
-     * 请求文章列表
+     * 3.0请求文章列表
+     *
      * @param keyword
      * @param pageSize
      * @param pageIndex
@@ -85,32 +92,33 @@ public class ArticleController {
      * @return
      */
     @RequestMapping(value = "/list", method = RequestMethod.POST)
-    public String queryLists(String keyword, int pageSize, int pageIndex, String sort){
+    public String queryLists(String keyword, int pageSize, int pageIndex, String sort) {
         Map<String, Object> map = new HashMap<>();
-        IPage<Article> articleIPage=null;
+        IPage<Article> articleIPage = null;
         try {
             articleIPage = articleService.queryLists(keyword, pageSize, pageIndex, sort);
             Map<String, Object> map1 = new HashMap<>();
-            map1.put("post",articleIPage);
-            map1.put("total",articleIPage.getSize());
-            map.put("stat","ok");
-            map.put("data",map1);
+            map1.put("post", articleIPage);
+            map1.put("total", articleIPage.getSize());
+            map.put("stat", "ok");
+            map.put("data", map1);
         } catch (Exception e) {
             map.put("stat", "Internal_Server_Error");
-            map.put("msg","内部错误");
+            map.put("msg", "内部错误");
         }
         return JSON.toJSONString(map);
     }
 
     /**
-     * 浏览文章
-     * 这个没写好，不知道什么意思
-     *   后台需要在在url中取得参数pid，以此返回对应的文章
+     * 3.1浏览文章
+     * 这个没写好，不知道什么意思，，，最后浏览数目要+1
+     * 后台需要在在url中取得参数pid，以此返回对应的文章
+     *
      * @param pid
      * @return
      */
-    @RequestMapping(value = "/pid",method = RequestMethod.GET)
-    public String lookPost(String pid){
+    @RequestMapping(value = "/pid", method = RequestMethod.GET)
+    public String lookPost(String pid) {
         Map<String, Object> map = new HashMap<>();
         try {
             Map<String, Object> data = new HashMap<>();
@@ -151,43 +159,56 @@ public class ArticleController {
             data.put("ctim", ctim);
             data.put("star", "  ");//是否被收藏
 
-            map.put("stat","ok");
-            map.put("data",data);
-        }
-        catch (Exception e){
+            map.put("stat", "ok");
+            map.put("data", data);
+        } catch (Exception e) {
             map.put("stat", "Internal_Server_Error");
-            map.put("msg","内部错误");
+            map.put("msg", "内部错误");
         }
         return JSON.toJSONString(map);
     }
 
-
-    @RequestMapping(value = "/pid",method = RequestMethod.PUT)
-    public String updateArticle(String title, String subTitle, String[] banners, String[] tags, String content){
+    /**
+     * 3.3编辑文章
+     *
+     * @param title
+     * @param subTitle
+     * @param banners
+     * @param tags
+     * @param content
+     * @return
+     */
+    @RequestMapping(value = "/pid", method = RequestMethod.PUT)
+    public String updateArticle(String title, String subTitle, String[] banners, String[] tags, String content) {
         Map<String, Object> map = new HashMap<>();
         try {
 
             //解析token得到作者，判断是否有权限；在url中获取pid，找到需要更新的的文章。
 
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             map.put("stat", "Internal_Server_Error");
-            map.put("msg","内部错误");
+            map.put("msg", "内部错误");
         }
 
         return JSON.toJSONString(map);
     }
 
-    @RequestMapping(value = "/pid",method = RequestMethod.DELETE)
-    public String deleteArticle(String pid){
+    /**
+     * 3.4删除文章
+     *
+     * @param pid 文章号
+     *            主要要获得userid，来判断文章是否能够删除
+     * @return
+     */
+    @RequestMapping(value = "/pid", method = RequestMethod.DELETE)
+    public String deleteArticle(String pid) {
         Map<String, Object> map = new HashMap<>();
         try {
             //解析token得到作者，在url中获取pid，判断是否具有权限删除，能则删除。
 
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             map.put("stat", "Internal_Server_Error");
-            map.put("msg","内部错误");
+            map.put("msg", "内部错误");
         }
 
         return JSON.toJSONString(map);

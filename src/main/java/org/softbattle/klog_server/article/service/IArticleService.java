@@ -26,10 +26,8 @@ public interface IArticleService extends IService<Article> {
     //3.4删除文章
     int deleteArticle(String pid);
     //3.5收藏文章
-
     //3.6取消收藏文章
-
-    //
+    //5和6是在user表里面的
 
 
 }
