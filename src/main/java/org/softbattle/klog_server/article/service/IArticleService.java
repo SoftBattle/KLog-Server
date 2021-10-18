@@ -3,6 +3,8 @@ package org.softbattle.klog_server.article.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.softbattle.klog_server.article.entity.Article;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,7 +24,7 @@ public interface IArticleService extends IService<Article> {
     //3.2新建文章
     int newArticle(Article article);
     //3.3编辑文章
-    int updateArticle(String title,String subTitle,String[] banners,String[] tags,String content);
+    int updateArticle(String title, String subTitle, @RequestParam(required = false) MultipartFile banners, String[] tags, String content);
     //3.4删除文章
     int deleteArticle(String pid);
     //3.5收藏文章

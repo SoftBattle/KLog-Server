@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.softbattle.klog_server.article.entity.Article;
 import org.softbattle.klog_server.article.service.IArticleService;
+import org.softbattle.klog_server.user.dto.input.LoginInfo;
 import org.softbattle.klog_server.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +41,8 @@ import java.util.Map;
 public class ArticleController {
     @Autowired
     private IArticleService articleService;
+    @Autowired
+    private LoginInfo loginInfo;
 
     /**
      * 3.2创建文章
@@ -57,7 +60,8 @@ public class ArticleController {
         try {
             Article article = new Article();
 
-            article.setArthor("?");//解析token，根据token取到userid
+            //解析token，根据token取到userid
+            article.setArthor(loginInfo.getUid());
 
             //上传图片
             if (banners != null) {
@@ -117,8 +121,8 @@ public class ArticleController {
      * @param pid
      * @return
      */
-    @RequestMapping(value = "/pid", method = RequestMethod.GET)
-    public String lookPost(String pid) {
+    @RequestMapping(value = "/{pid}", method = RequestMethod.GET)
+    public String lookPost(@PathVariable String pid) {
         Map<String, Object> map = new HashMap<>();
         try {
             Map<String, Object> data = new HashMap<>();
@@ -173,17 +177,23 @@ public class ArticleController {
      *
      * @param title
      * @param subTitle
-     * @param banners
+     * @param banners     图片不是一个string的数组，只是图片的名字是，所以你要给我图片文件MultipartFile类型的，这个fileutil方法里面有自动解析图片名字
      * @param tags
      * @param content
      * @return
      */
-    @RequestMapping(value = "/pid", method = RequestMethod.PUT)
-    public String updateArticle(String title, String subTitle, String[] banners, String[] tags, String content) {
+    @RequestMapping(value = "/{pid}", method = RequestMethod.PUT)
+    public String updateArticle(@PathVariable String pid,String title, String subTitle, @RequestParam(required = false) MultipartFile banners, String[] tags, String content) {
         Map<String, Object> map = new HashMap<>();
         try {
 
             //解析token得到作者，判断是否有权限；在url中获取pid，找到需要更新的的文章。
+            String uid = loginInfo.getUid();
+            Article article = articleService.getById(pid);
+            String arthor = article.getArthor();
+            if(arthor.equals(uid)){//相等说明有权限
+                articleService.updateArticle(title, subTitle, banners, tags, content);
+            }
 
         } catch (Exception e) {
             map.put("stat", "Internal_Server_Error");
@@ -200,11 +210,17 @@ public class ArticleController {
      *            主要要获得userid，来判断文章是否能够删除
      * @return
      */
-    @RequestMapping(value = "/pid", method = RequestMethod.DELETE)
-    public String deleteArticle(String pid) {
+    @RequestMapping(value = "/{pid}", method = RequestMethod.DELETE)
+    public String deleteArticle(@PathVariable String pid) {
         Map<String, Object> map = new HashMap<>();
         try {
             //解析token得到作者，在url中获取pid，判断是否具有权限删除，能则删除。
+            String uid = loginInfo.getUid();
+            Article article = articleService.getById(pid);
+            String arthor = article.getArthor();
+            if(arthor.equals(uid)){
+                articleService.deleteArticle(pid);
+            }
 
         } catch (Exception e) {
             map.put("stat", "Internal_Server_Error");
