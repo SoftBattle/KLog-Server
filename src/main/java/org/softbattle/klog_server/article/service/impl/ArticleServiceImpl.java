@@ -8,8 +8,12 @@ import org.softbattle.klog_server.article.entity.Article;
 import org.softbattle.klog_server.article.mapper.ArticleMapper;
 import org.softbattle.klog_server.article.service.IArticleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.softbattle.klog_server.user.dto.input.LoginInfo;
+import org.softbattle.klog_server.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,6 +30,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private ArticleMapper articleMapper;
+    @Autowired
+    private LoginInfo loginInfo;
 
     @Override
     public IPage<Article> queryLists(String keyword, int pageSize, int pageIndex, String sort) {
@@ -66,16 +72,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public int updateArticle(String title, String subTitle, String[] banners, String[] tags, String content) {
+    public int updateArticle(String title, String subTitle, @RequestParam(required = false) MultipartFile banners, String[] tags, String content) {
         UpdateWrapper<Article> wrapper=new UpdateWrapper<Article>();
         //这里要获得用户作者
-        wrapper.eq("arthor","  uid ");//解析token得到作者
+        wrapper.eq("arthor",loginInfo.getUid());//解析token得到作者
         //然后在URL里面获得pid
         wrapper.eq("articleId","pid");//解析URL获得文章iD
         Article article=new Article();
         article.setTitle(title);
         article.setSubTitle(subTitle);
-        article.setBanner(banners.toString());
+        article.setBanner(banners.getOriginalFilename());
         article.setTags(tags.toString());
         article.setContent(content);
         return articleMapper.update(article,wrapper);
