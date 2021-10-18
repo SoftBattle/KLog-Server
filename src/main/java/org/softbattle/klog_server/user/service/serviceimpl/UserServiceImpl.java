@@ -168,4 +168,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return false;
         }
     }
+
+    /**
+     * 修改昵称
+     *
+     * @param uid
+     * @param nickname
+     * @return
+     */
+    @Override
+    public boolean changeNickname(String uid, String nickname) {
+        User user = userMapper.selectById(uid);
+        try {
+            user.setNickname(nickname);
+            userMapper.updateById(user);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
 }

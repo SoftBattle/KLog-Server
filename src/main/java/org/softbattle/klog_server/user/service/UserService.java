@@ -52,4 +52,12 @@ public interface UserService extends IService<User>{
      */
     boolean changePassword(String uid, String oldPassword, String newPassword);
 
+    /**
+     * 修改昵称
+     * @param uid
+     * @param nickname
+     * @return
+     */
+    boolean changeNickname(String uid, String nickname);
+
 }

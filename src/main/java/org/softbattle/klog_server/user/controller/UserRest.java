@@ -4,15 +4,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import org.softbattle.klog_server.config.NeedToken;
 import org.softbattle.klog_server.config.PassToken;
+import org.softbattle.klog_server.user.dto.input.ChangePassword;
 import org.softbattle.klog_server.user.dto.input.UserSearchParam;
 import org.softbattle.klog_server.user.dto.output.AuthRegist;
 import org.softbattle.klog_server.user.dto.input.LoginInfo;
 import org.softbattle.klog_server.user.dto.output.UserSearchInfo;
-import org.softbattle.klog_server.user.mapper.UserMapper;
 import org.softbattle.klog_server.user.result.Result;
 import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
 import org.softbattle.klog_server.utils.JwtUtil;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -33,6 +32,22 @@ public class UserRest {
     @Resource
     private UserServiceImpl userService;
 
+    /**
+     * 预处理(一般用于/api/user/**)
+     */
+    public String  preMethod(){
+        //拿到request,response
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
+        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
+        //拿到token
+        String token = httpServletRequest.getHeader("token");
+        //将token装入cookie
+        assert httpServletResponse != null;
+        JwtUtil.setCookie(httpServletResponse, token);
+        //拿到token主人的uid
+        return JwtUtil.getUid(token);
+    }
 
     /**
      * 用户注册
@@ -122,13 +137,7 @@ public class UserRest {
     @NeedToken
     @PostMapping(value = "/api/user/search")
     public Result search(@RequestBody UserSearchParam userSearchParam){
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
-        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
-        String token = httpServletRequest.getHeader("token");
-        assert httpServletResponse != null;
-        JwtUtil.setCookie(httpServletResponse, token);
-        String uid = JwtUtil.getUid(token);
+        String uid = this.preMethod();
         IPage<UserSearchInfo> userSearchInfoIPage = userService.search(userSearchParam.getKeyword(), userSearchParam.getPageSize(), userSearchParam.getPageIndex(), uid);
         HashMap<String, Object> dataMap = new HashMap<>();
         dataMap.put("users", userSearchInfoIPage.getRecords());
@@ -145,28 +154,34 @@ public class UserRest {
     @NeedToken
     @PostMapping(value = "/api/user/info")
     public Result getUserInfo(@RequestParam(value = "uid") String uid){
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
-        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
-        String token = httpServletRequest.getHeader("token");
-        assert httpServletResponse != null;
-        JwtUtil.setCookie(httpServletResponse, token);
-        String currentUid = JwtUtil.getUid(token);
+        String currentUid = this.preMethod();
         return Result.success(null, userService.info(uid, currentUid));
 
     }
 
+    /**
+     * 修改密码
+     * @param changePassword
+     * @return
+     */
     @NeedToken
     @PutMapping(value = "/api/user/passwd")
-    public Result changePassword(@RequestParam(value = "oldPasswd") String oldPasswd, @RequestParam(value = "newPasswd") String newPasswd){
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
-        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
-        String token = httpServletRequest.getHeader("token");
-        assert httpServletResponse != null;
-        JwtUtil.setCookie(httpServletResponse, token);
-        String uid = JwtUtil.getUid(token);
-        return userService.changePassword(uid, oldPasswd, newPasswd) ? Result.success("ok", "密码修改成功") : Result.error();
+    public Result changePassword(@RequestBody ChangePassword changePassword){
+        String uid = this.preMethod();
+        return userService.changePassword(uid, changePassword.getOldPasswd(), changePassword.getNewPasswd()) ? Result.success("ok", "密码修改成功") : Result.error();
+
+    }
+
+    /**
+     * 修改昵称
+     * @param nickname
+     * @return
+     */
+    @NeedToken
+    @PutMapping(value = "/api/user/nickname")
+    public Result changeNickname(@RequestParam(value = "nickname") String nickname){
+        String uid = this.preMethod();
+        return userService.changeNickname(uid, nickname) ? Result.success() : Result.error();
 
     }
 }
