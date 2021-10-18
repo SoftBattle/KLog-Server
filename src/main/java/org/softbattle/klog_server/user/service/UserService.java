@@ -1,6 +1,7 @@
 package org.softbattle.klog_server.user.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.softbattle.klog_server.user.dto.output.UserInfo;
 import org.softbattle.klog_server.user.dto.output.UserSearchInfo;
 import org.softbattle.klog_server.user.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -33,5 +34,22 @@ public interface UserService extends IService<User>{
      * @return
      */
     IPage<UserSearchInfo> search(String keyword, int pageSize, int pageIndex, String uid);
+
+    /**
+     * 获取用户信息
+     * @param uid
+     * @param currentUid
+     * @return
+     */
+    UserInfo info(String uid, String currentUid);
+
+    /**
+     * 修改密码
+     * @param uid
+     * @param oldPassword
+     * @param newPassword
+     * @return
+     */
+    boolean changePassword(String uid, String oldPassword, String newPassword);
 
 }
