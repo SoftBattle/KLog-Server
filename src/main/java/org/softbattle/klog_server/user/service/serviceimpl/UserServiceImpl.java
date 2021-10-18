@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONAware;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.softbattle.klog_server.user.dto.output.UserInfo;
 import org.softbattle.klog_server.user.dto.output.UserSearchInfo;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private UserMapper userMapper;
+
 
 
     /**
@@ -121,5 +123,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 //        System.out.println(userSearchInfoIPageTest.equals(userSearchInfoIPage));
 
         return userSearchInfoIPage;
+    }
+
+    /**
+     * 获取用户信息
+     * @param uid
+     * @param currentUid
+     * @return
+     */
+    public UserInfo info(String uid, String currentUid){
+        //uid为空时返回token主人信息
+        String searchUid = (uid != null && !uid.isBlank()) ? uid : currentUid;
+        User searchUser = userMapper.selectById(searchUid);
+        if (searchUser == null){
+            return null;
+        }
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUid(searchUser.getUserid());
+        userInfo.setNickname(searchUser.getNickname());
+        userInfo.setAvatar(searchUser.getAvatar());
+        return userInfo;
     }
 }

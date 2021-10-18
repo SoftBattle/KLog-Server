@@ -15,6 +15,7 @@ import org.softbattle.klog_server.utils.JwtUtil;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -34,6 +35,7 @@ public class UserRest {
 
     @Resource
     private UserServiceImpl userService;
+
 
     /**
      * 用户注册
@@ -136,5 +138,24 @@ public class UserRest {
         //排除自己
         dataMap.put("total", userSearchInfoIPage.getTotal() - 1);
         return Result.success(null, dataMap);
+    }
+
+    /**
+     * 获取用户信息
+     * @param uid
+     * @return
+     */
+    @NeedToken
+    @PostMapping(value = "/api/user/info")
+    public Result info(@RequestParam(value = "uid") String uid){
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
+        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
+        String token = httpServletRequest.getHeader("token");
+        assert httpServletResponse != null;
+        JwtUtil.setCookie(httpServletResponse, token);
+        String currentUid = JwtUtil.getUid(token);
+        return Result.success(null, userService.info(uid, currentUid));
+
     }
 }
