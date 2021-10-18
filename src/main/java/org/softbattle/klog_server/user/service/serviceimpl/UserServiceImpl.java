@@ -131,6 +131,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @param currentUid
      * @return
      */
+    @Override
     public UserInfo info(String uid, String currentUid){
         //uid为空时返回token主人信息
         String searchUid = (uid != null && !uid.isBlank()) ? uid : currentUid;
@@ -143,5 +144,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userInfo.setNickname(searchUser.getNickname());
         userInfo.setAvatar(searchUser.getAvatar());
         return userInfo;
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param uid
+     * @param oldPassword
+     * @param newPassword
+     * @return
+     */
+    @Override
+    public boolean changePassword(String uid, String oldPassword, String newPassword) {
+        User user = userMapper.selectById(uid);
+        if (!oldPassword.equals(user.getPassword())){
+            return false;
+        }
+        user.setPassword(newPassword);
+        try {
+            userMapper.updateById(user);
+            return true;
+        } catch (Exception e){
+            return false;
+        }
     }
 }

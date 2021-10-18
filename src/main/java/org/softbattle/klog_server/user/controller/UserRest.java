@@ -13,10 +13,7 @@ import org.softbattle.klog_server.user.result.Result;
 import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
 import org.softbattle.klog_server.utils.JwtUtil;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -147,7 +144,7 @@ public class UserRest {
      */
     @NeedToken
     @PostMapping(value = "/api/user/info")
-    public Result info(@RequestParam(value = "uid") String uid){
+    public Result getUserInfo(@RequestParam(value = "uid") String uid){
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
         HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
@@ -156,6 +153,20 @@ public class UserRest {
         JwtUtil.setCookie(httpServletResponse, token);
         String currentUid = JwtUtil.getUid(token);
         return Result.success(null, userService.info(uid, currentUid));
+
+    }
+
+    @NeedToken
+    @PutMapping(value = "/api/user/passwd")
+    public Result changePassword(@RequestParam(value = "oldPasswd") String oldPasswd, @RequestParam(value = "newPasswd") String newPasswd){
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
+        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
+        String token = httpServletRequest.getHeader("token");
+        assert httpServletResponse != null;
+        JwtUtil.setCookie(httpServletResponse, token);
+        String uid = JwtUtil.getUid(token);
+        return userService.changePassword(uid, oldPasswd, newPasswd) ? Result.success("ok", "密码修改成功") : Result.error();
 
     }
 }
