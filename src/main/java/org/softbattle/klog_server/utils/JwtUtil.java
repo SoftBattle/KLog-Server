@@ -67,7 +67,6 @@ public class JwtUtil {
     public static String tokenExpire(String jwtToken){
         if (jwtToken != null){
             String uid = JwtUtil.getUid(jwtToken);
-            JWT jwt = JWTUtil.parseToken(jwtToken);
             return JWT.create()
                     .setPayload(USERID, uid)
                     //不签名
@@ -80,7 +79,7 @@ public class JwtUtil {
     }
 
     /**
-     * token验证
+     * token时间验证
      */
     public static boolean validate(String jwtToken){
         try {
