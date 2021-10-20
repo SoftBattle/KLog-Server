@@ -60,4 +60,22 @@ public interface UserService extends IService<User>{
      */
     boolean changeNickname(String uid, String nickname);
 
+    /**
+     * 修改头像
+     * @param uid
+     * @param avatar
+     * @return
+     */
+    boolean changeAvatar(String uid, String avatar);
+
+    /**
+     * 获取关注
+     * @param uid
+     * @param pageSize
+     * @param pageIndex
+     * @param currentUid
+     * @return
+     */
+    IPage<UserInfo> getFollows(String uid, int pageSize, int pageIndex, String currentUid);
+
 }

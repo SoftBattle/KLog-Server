@@ -11,14 +11,22 @@ import org.softbattle.klog_server.user.dto.input.LoginInfo;
 import org.softbattle.klog_server.user.dto.output.UserSearchInfo;
 import org.softbattle.klog_server.user.result.Result;
 import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
+import org.softbattle.klog_server.utils.FileUtil;
 import org.softbattle.klog_server.utils.JwtUtil;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 /**
@@ -184,4 +192,29 @@ public class UserRest {
         return userService.changeNickname(uid, nickname) ? Result.success() : Result.error();
 
     }
+
+    /**
+     * 修改头像
+     * *
+     * @param avatar
+     * @return
+     */
+    @NeedToken
+    @PutMapping(value = "/api/user/avatar")
+    public Result changeAvatar(@RequestParam(value = "avatar") String avatar){
+        String uid = this.preMethod();
+        //上传过程不做测试
+        try {
+            //File转MultipartFile
+            File file = new File(avatar);
+            InputStream inputStream = new FileInputStream(file);
+            MultipartFile multipartFile = new MockMultipartFile(file.getName(), inputStream);
+            FileUtil.upload(multipartFile);
+        } catch (Exception e){
+            return Result.error();
+        }
+        return userService.changeAvatar(uid, avatar) ? Result.success() : Result.error();
+    }
+
+
 }

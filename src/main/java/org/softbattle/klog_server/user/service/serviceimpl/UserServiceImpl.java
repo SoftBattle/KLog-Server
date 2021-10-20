@@ -187,4 +187,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return false;
         }
     }
+
+    /**
+     * 修改头像
+     *
+     * @param uid
+     * @param avatar
+     * @return
+     */
+    @Override
+    public boolean changeAvatar(String uid, String avatar) {
+        User user = userMapper.selectById(uid);
+        try {
+            user.setAvatar(avatar);
+            userMapper.updateById(user);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    /**
+     * 获取关注
+     *
+     * @param uid
+     * @param pageSize
+     * @param pageIndex
+     * @param currentUid
+     * @return
+     */
+    @Override
+    public IPage<UserInfo> getFollows(String uid, int pageSize, int pageIndex, String currentUid) {
+        return null;
+    }
+
+
 }
