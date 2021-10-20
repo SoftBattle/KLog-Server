@@ -10,6 +10,7 @@ import org.softbattle.klog_server.user.dto.output.UserSearchInfo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -28,7 +29,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private UserMapper userMapper;
-
 
 
     /**
@@ -101,7 +101,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //拿到搜索结果后逐个判断是否已关注
         IPage<UserSearchInfo> userSearchInfoIPage = userMapper.userPage(page, keyword, uid);
         List<UserSearchInfo> records = userSearchInfoIPage.getRecords();
-        if (records == null){
+        if (records == null) {
             return userSearchInfoIPage;
         }
         //把自己排除
@@ -127,16 +127,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 获取用户信息
+     *
      * @param uid
      * @param currentUid
      * @return
      */
     @Override
-    public UserInfo info(String uid, String currentUid){
+    public UserInfo info(String uid, String currentUid) {
         //uid为空时返回token主人信息
         String searchUid = (uid != null && !uid.isBlank()) ? uid : currentUid;
         User searchUser = userMapper.selectById(searchUid);
-        if (searchUser == null){
+        if (searchUser == null) {
             return null;
         }
         UserInfo userInfo = new UserInfo();
@@ -157,14 +158,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean changePassword(String uid, String oldPassword, String newPassword) {
         User user = userMapper.selectById(uid);
-        if (!oldPassword.equals(user.getPassword())){
+        if (!oldPassword.equals(user.getPassword())) {
             return false;
         }
         user.setPassword(newPassword);
         try {
             userMapper.updateById(user);
             return true;
-        } catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -183,7 +184,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setNickname(nickname);
             userMapper.updateById(user);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -202,7 +203,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setAvatar(avatar);
             userMapper.updateById(user);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -213,12 +214,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @param uid
      * @param pageSize
      * @param pageIndex
-     * @param currentUid
      * @return
      */
     @Override
-    public IPage<UserInfo> getFollows(String uid, int pageSize, int pageIndex, String currentUid) {
-        return null;
+    public IPage<UserInfo> getFollows(String uid, int pageSize, int pageIndex) {
+        User user = userMapper.selectById(uid);
+        if (user == null) {
+            return null;
+        }
+        String follows = user.getFollows();
+        //setRecords
+        List<UserInfo> resultList = new ArrayList<>();
+        if (follows != null) {
+            //拿到关注uid列表
+            List<String> followList = new ArrayList<>(JSON.parseArray(follows, String.class));
+            for (String follow : followList) {
+                resultList.add(userMapper.userInfoSearch(follow));
+            }
+        }
+        //手动构造IPage以利用自动分页机制
+        IPage<UserInfo> userInfoIPage = new Page<>(pageIndex, pageSize, resultList.size());
+        userInfoIPage.setRecords(resultList);
+
+        return userInfoIPage;
     }
 
 

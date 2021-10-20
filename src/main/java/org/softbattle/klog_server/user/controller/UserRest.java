@@ -5,9 +5,11 @@ import io.swagger.annotations.Api;
 import org.softbattle.klog_server.config.NeedToken;
 import org.softbattle.klog_server.config.PassToken;
 import org.softbattle.klog_server.user.dto.input.ChangePassword;
+import org.softbattle.klog_server.user.dto.input.FollowSearch;
 import org.softbattle.klog_server.user.dto.input.UserSearchParam;
 import org.softbattle.klog_server.user.dto.output.AuthRegist;
 import org.softbattle.klog_server.user.dto.input.LoginInfo;
+import org.softbattle.klog_server.user.dto.output.UserInfo;
 import org.softbattle.klog_server.user.dto.output.UserSearchInfo;
 import org.softbattle.klog_server.user.result.Result;
 import org.softbattle.klog_server.user.service.serviceimpl.UserServiceImpl;
@@ -28,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 用户操作控制层
@@ -195,7 +198,6 @@ public class UserRest {
 
     /**
      * 修改头像
-     * *
      * @param avatar
      * @return
      */
@@ -203,7 +205,7 @@ public class UserRest {
     @PutMapping(value = "/api/user/avatar")
     public Result changeAvatar(@RequestParam(value = "avatar") String avatar){
         String uid = this.preMethod();
-        //上传过程不做测试
+        //上传过程暂不做测试
         try {
             //File转MultipartFile
             File file = new File(avatar);
@@ -211,10 +213,25 @@ public class UserRest {
             MultipartFile multipartFile = new MockMultipartFile(file.getName(), inputStream);
             FileUtil.upload(multipartFile);
         } catch (Exception e){
+            e.printStackTrace();
             return Result.error();
         }
         return userService.changeAvatar(uid, avatar) ? Result.success() : Result.error();
     }
 
+    /**
+     * 获取关注
+     * @param followSearch
+     * @return
+     */
+    @NeedToken
+    @PostMapping(value = "/api/user/follows")
+    public Result getFollows(@RequestBody FollowSearch followSearch){
+        IPage<UserInfo> followPage = userService.getFollows(followSearch.getUid(), followSearch.getPageSize(), followSearch.getPageIndex());
+        HashMap<String, Object> ResultMap = new HashMap<>();
+        ResultMap.put("items", followPage.getRecords());
+        ResultMap.put("total", followPage.getTotal());
+        return Result.success(null, ResultMap);
+    }
 
 }

@@ -34,4 +34,19 @@
       </if>
     </where>
   </select>
+
+  <resultMap id="userInfoMap" type="org.softbattle.klog_server.user.dto.output.UserInfo">
+    <!--@mbg.generated-->
+    <!--@Table t_user-->
+    <id column="userId" jdbcType="VARCHAR" property="uid" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+  </resultMap>
+
+  <select id="userInfoSearch" resultMap="userInfoMap">
+    select userId, nickname, avatar from t_user
+    <where>
+      userId = #{uid}
+    </where>
+  </select>
 </mapper>

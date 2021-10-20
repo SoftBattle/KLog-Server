@@ -73,9 +73,8 @@ public interface UserService extends IService<User>{
      * @param uid
      * @param pageSize
      * @param pageIndex
-     * @param currentUid
      * @return
      */
-    IPage<UserInfo> getFollows(String uid, int pageSize, int pageIndex, String currentUid);
+    IPage<UserInfo> getFollows(String uid, int pageSize, int pageIndex);
 
 }

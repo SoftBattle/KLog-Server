@@ -24,4 +24,11 @@ public interface UserMapper extends BaseMapper<User> {
      * @return
      */
     IPage<UserSearchInfo> userPage(Page<?> page, @Param("keyword") String keyword, @Param("uid") String uid);
+
+    /**
+     * 根据uid搜索用户信息
+     * @param uid
+     * @return
+     */
+    UserInfo userInfoSearch(@Param("uid")String uid);
 }
