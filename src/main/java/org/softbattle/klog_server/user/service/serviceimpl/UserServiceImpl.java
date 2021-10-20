@@ -1,5 +1,6 @@
 package org.softbattle.klog_server.user.service.serviceimpl;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONAware;
@@ -237,6 +238,55 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userInfoIPage.setRecords(resultList);
 
         return userInfoIPage;
+    }
+
+    /**
+     * 关注某人
+     *
+     * @param uid
+     * @param currentUid
+     * @return
+     */
+    @Override
+    public boolean followUser(String uid, String currentUid) {
+        User user = userMapper.selectById(uid);
+        User currentUser = userMapper.selectById(currentUid);
+        if (user == null) {
+            return false;
+        }
+        //在自己关注列表里添加对方
+        String follows = currentUser.getFollows();
+        List<String> followList;
+        if (follows != null){
+            followList = new ArrayList<>(JSON.parseArray(follows, String.class));
+            //自己还没关注目标
+            if (!followList.contains(uid)){
+                followList.add(uid);
+            }
+        }else {
+            followList = new ArrayList<>();
+            followList.add(uid);
+        }
+        currentUser.setFollows(JSONUtil.toJsonStr(followList));
+        userMapper.updateById(currentUser);
+        //在对方粉丝列表里加入自己
+        String followers = user.getFollowers();
+        List<String> followerList;
+        if (followers != null) {
+            followerList = new ArrayList<>(JSON.parseArray(followers, String.class));
+            //目标用户还没被你关注
+            if (!followerList.contains(currentUid)) {
+                followerList.add(currentUid);
+            }
+        } else {
+            followerList = new ArrayList<>();
+            //目标用户还没被自己关注
+            followerList.add(currentUid);
+        }
+        user.setFollowers(JSONUtil.toJsonStr(followerList));
+        userMapper.updateById(user);
+        return true;
+
     }
 
 

@@ -234,4 +234,15 @@ public class UserRest {
         return Result.success(null, ResultMap);
     }
 
+    /**
+     * 关注某人
+     * @param uid
+     * @return
+     */
+    @NeedToken
+    @PostMapping(value = "/api/user/follow")
+    public Result followUser(@RequestParam(value = "uid")String uid){
+        String currentUid = this.preMethod();
+        return userService.followUser(uid, currentUid) ? Result.success() : Result.error();
+    }
 }
