@@ -5,12 +5,19 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.softbattle.klog_server.article.entity.Article;
 import org.softbattle.klog_server.article.service.IArticleService;
-import org.softbattle.klog_server.user.dto.input.LoginInfo;
+import org.softbattle.klog_server.user.entity.User;
+import org.softbattle.klog_server.user.mapper.UserMapper;
+import org.softbattle.klog_server.user.service.UserService;
 import org.softbattle.klog_server.utils.FileUtil;
+import org.softbattle.klog_server.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -41,8 +48,27 @@ import java.util.Map;
 public class ArticleController {
     @Autowired
     private IArticleService articleService;
+//    @Autowired
+//    private LoginInfo loginInfo;
+
     @Autowired
-    private LoginInfo loginInfo;
+    private UserMapper userMapper;
+    /**
+     * 预处理(一般用于/api/post/**)
+     */
+    public String  preMethod(){
+        //拿到request,response
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
+        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
+        //拿到token
+        String token = httpServletRequest.getHeader("token");
+        //将token装入cookie
+        assert httpServletResponse != null;
+        JwtUtil.setCookie(httpServletResponse, token);
+        //拿到token主人的uid
+        return JwtUtil.getUid(token);
+    }
 
     /**
      * 3.2创建文章
@@ -61,7 +87,7 @@ public class ArticleController {
             Article article = new Article();
 
             //解析token，根据token取到userid
-            article.setArthor(loginInfo.getUid());
+            article.setArthor(this.preMethod());
 
             //上传图片
             if (banners != null) {
@@ -135,10 +161,16 @@ public class ArticleController {
              follow: false // 是否关注了该作者
              然后装在一个叫做author的map里面
              **/
+            User user = userMapper.selectById(uid);
+            String nickname = user.getNickname();
+            String avatar = user.getAvatar();
+            String followers = user.getFollowers();
             Map<String, Object> author = new HashMap<>();
             author.put("uid", uid);
             //接下来就把别的放进来
-
+            author.put("nickname", nickname);
+            author.put("avatar", avatar);
+            author.put("followers", followers);
 
             String title = article.getTitle();//
             String subTitle = article.getSubTitle();
@@ -188,7 +220,7 @@ public class ArticleController {
         try {
 
             //解析token得到作者，判断是否有权限；在url中获取pid，找到需要更新的的文章。
-            String uid = loginInfo.getUid();
+            String uid = this.preMethod();
             Article article = articleService.getById(pid);
             String arthor = article.getArthor();
             if(arthor.equals(uid)){//相等说明有权限
@@ -215,7 +247,7 @@ public class ArticleController {
         Map<String, Object> map = new HashMap<>();
         try {
             //解析token得到作者，在url中获取pid，判断是否具有权限删除，能则删除。
-            String uid = loginInfo.getUid();
+            String uid = this.preMethod();
             Article article = articleService.getById(pid);
             String arthor = article.getArthor();
             if(arthor.equals(uid)){

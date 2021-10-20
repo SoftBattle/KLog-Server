@@ -10,11 +10,16 @@ import org.softbattle.klog_server.article.service.IArticleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.softbattle.klog_server.user.dto.input.LoginInfo;
 import org.softbattle.klog_server.utils.FileUtil;
+import org.softbattle.klog_server.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -30,8 +35,23 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private ArticleMapper articleMapper;
-    @Autowired
-    private LoginInfo loginInfo;
+
+    /**
+     * 预处理(一般用于/api/post/**)
+     */
+    public String  preMethod(){
+        //拿到request,response
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
+        HttpServletResponse httpServletResponse = servletRequestAttributes.getResponse();
+        //拿到token
+        String token = httpServletRequest.getHeader("token");
+        //将token装入cookie
+        assert httpServletResponse != null;
+        JwtUtil.setCookie(httpServletResponse, token);
+        //拿到token主人的uid
+        return JwtUtil.getUid(token);
+    }
 
     @Override
     public IPage<Article> queryLists(String keyword, int pageSize, int pageIndex, String sort) {
@@ -75,7 +95,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public int updateArticle(String title, String subTitle, @RequestParam(required = false) MultipartFile banners, String[] tags, String content) {
         UpdateWrapper<Article> wrapper=new UpdateWrapper<Article>();
         //这里要获得用户作者
-        wrapper.eq("arthor",loginInfo.getUid());//解析token得到作者
+        wrapper.eq("arthor",this.preMethod());//解析token得到作者
         //然后在URL里面获得pid
         wrapper.eq("articleId","pid");//解析URL获得文章iD
         Article article=new Article();
