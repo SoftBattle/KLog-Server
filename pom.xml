@@ -146,6 +146,11 @@
             <artifactId>hutool-all</artifactId>
             <version>5.7.7</version>
         </dependency>
+<!--        File转MultipartFile懒人法-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
 
     </dependencies>
 
