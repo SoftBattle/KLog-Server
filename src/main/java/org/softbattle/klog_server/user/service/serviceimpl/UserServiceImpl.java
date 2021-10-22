@@ -355,6 +355,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             starList = new ArrayList<>();
             starList.add(pid);
         }
+        currentUser.setStars(JSONUtil.toJsonStr(starList));
+        userMapper.updateById(currentUser);
         return true;
     }
 }

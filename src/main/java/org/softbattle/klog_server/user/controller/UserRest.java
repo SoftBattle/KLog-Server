@@ -257,4 +257,16 @@ public class UserRest {
         String currentUid = this.preMethod();
         return userService.cancelFollow(uid, currentUid) ? Result.success() : Result.error();
     }
+
+    /**
+     * 收藏文章
+     * @param pid
+     * @return
+     */
+    @NeedToken
+    @PostMapping(value = "/api/post/star")
+    public Result star(@RequestParam(value = "pid")String pid){
+        String currentUid = this.preMethod();
+        return userService.starArtical(pid, currentUid) ? Result.success() : Result.error();
+    }
 }
