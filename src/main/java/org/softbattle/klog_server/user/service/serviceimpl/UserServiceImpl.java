@@ -359,4 +359,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userMapper.updateById(currentUser);
         return true;
     }
+
+    /**
+     * 取消收藏
+     *
+     * @param pid
+     * @param currentUid
+     * @return
+     */
+    @Override
+    public boolean unstarArtical(String pid, String currentUid) {
+        User currentUser = userMapper.selectById(currentUid);
+        if (currentUid == null){
+            return false;
+        }
+        String starArticals = currentUser.getStars();
+        if (starArticals == null){
+            //没有收藏过文章调用接口直接报错
+            return false;
+        }
+        else {
+            List<String> starList = new ArrayList<>(JSON.parseArray(starArticals, String.class));
+            if (!starList.contains(pid)){
+                return false;
+            }
+            starList.remove(pid);
+            currentUser.setStars(JSONUtil.toJsonStr(starList));
+            userMapper.updateById(currentUser);
+            return true;
+        }
+
+    }
 }

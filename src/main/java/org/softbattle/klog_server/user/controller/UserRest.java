@@ -269,4 +269,16 @@ public class UserRest {
         String currentUid = this.preMethod();
         return userService.starArtical(pid, currentUid) ? Result.success() : Result.error();
     }
+
+    /**
+     * 取消收藏
+     * @param pid
+     * @return
+     */
+    @NeedToken
+    @PostMapping(value = "/api/post/unstar")
+    public Result unstar(@RequestParam(value = "pid") String pid){
+        String currentUid = this.preMethod();
+        return userService.unstarArtical(pid, currentUid) ? Result.success() : Result.error();
+    }
 }

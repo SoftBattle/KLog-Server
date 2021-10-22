@@ -101,4 +101,12 @@ public interface UserService extends IService<User>{
      */
     boolean starArtical(String pid, String currentUid);
 
+    /**
+     * 取消收藏
+     * @param pid
+     * @param currentUid
+     * @return
+     */
+    boolean unstarArtical(String pid, String currentUid);
+
 }
