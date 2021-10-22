@@ -85,4 +85,20 @@ public interface UserService extends IService<User>{
      */
     boolean followUser(String uid, String currentUid);
 
+    /**
+     * 取关
+     * @param uid
+     * @param currentUid
+     * @return
+     */
+    boolean cancelFollow(String uid, String currentUid);
+
+    /**
+     * 收藏文章
+     * @param pid
+     * @param currentUid
+     * @return
+     */
+    boolean starArtical(String pid, String currentUid);
+
 }

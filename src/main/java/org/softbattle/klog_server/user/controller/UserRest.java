@@ -46,7 +46,7 @@ public class UserRest {
     /**
      * 预处理(一般用于/api/user/**)
      */
-    public String  preMethod(){
+    public String preMethod(){
         //拿到request,response
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
@@ -244,5 +244,17 @@ public class UserRest {
     public Result followUser(@RequestParam(value = "uid")String uid){
         String currentUid = this.preMethod();
         return userService.followUser(uid, currentUid) ? Result.success() : Result.error();
+    }
+
+    /**
+     * 取消关注
+     * @param uid
+     * @return
+     */
+    @NeedToken
+    @PostMapping(value = "/api/user/unfollow")
+    public Result cancelFollow(@RequestParam(value = "uid")String uid){
+        String currentUid = this.preMethod();
+        return userService.cancelFollow(uid, currentUid) ? Result.success() : Result.error();
     }
 }

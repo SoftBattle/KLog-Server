@@ -257,13 +257,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //在自己关注列表里添加对方
         String follows = currentUser.getFollows();
         List<String> followList;
-        if (follows != null){
+        if (follows != null) {
             followList = new ArrayList<>(JSON.parseArray(follows, String.class));
             //自己还没关注目标
-            if (!followList.contains(uid)){
+            if (!followList.contains(uid)) {
                 followList.add(uid);
             }
-        }else {
+        } else {
             followList = new ArrayList<>();
             followList.add(uid);
         }
@@ -280,7 +280,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         } else {
             followerList = new ArrayList<>();
-            //目标用户还没被自己关注
             followerList.add(currentUid);
         }
         user.setFollowers(JSONUtil.toJsonStr(followerList));
@@ -289,5 +288,73 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     }
 
+    /**
+     * 取关
+     *
+     * @param uid
+     * @param currentUid
+     * @return
+     */
+    @Override
+    public boolean cancelFollow(String uid, String currentUid) {
+        User user = userMapper.selectById(uid);
+        User currentUser = userMapper.selectById(currentUid);
+        if (user == null) {
+            return false;
+        }
+        String follows = currentUser.getFollows();
+        if (follows != null) {
+            List<String> followList = new ArrayList<>(JSON.parseArray(follows, String.class));
+            //如果自己关注列表有对方，则删除，否则报错
+            if (!followList.remove(uid)) {
+                return false;
+            }
+            //更新
+            currentUser.setFollows(JSONUtil.toJsonStr(followList));
+            userMapper.updateById(currentUser);
+        } else {
+            return false;
+        }
+        String followers = user.getFollowers();
+        if (followers != null){
+            List<String> followerList = new ArrayList<>(JSON.parseArray(followers, String.class));
+            //如果对方粉丝列表有自己，则删除
+            if (!followerList.remove(currentUid)){
+                return false;
+            }
+            user.setFollowers(JSONUtil.toJsonStr(followerList));
+            userMapper.updateById(user);
+        }else {
+            return false;
+        }
+        return true;
+    }
 
+    /**
+     * 收藏文章
+     *
+     * @param pid
+     * @param currentUid
+     * @return
+     */
+    @Override
+    public boolean starArtical(String pid, String currentUid) {
+        User currentUser = userMapper.selectById(currentUid);
+        if (currentUid == null){
+            return false;
+        }
+        String starArticals = currentUser.getStars();
+        List<String> starList;
+        if (starArticals != null){
+            starList = new ArrayList<>(JSON.parseArray(starArticals, String.class));
+            //如果没收藏过则收藏
+            if (!starList.contains(pid)){
+                starList.add(pid);
+            }
+        }else {
+            starList = new ArrayList<>();
+            starList.add(pid);
+        }
+        return true;
+    }
 }
